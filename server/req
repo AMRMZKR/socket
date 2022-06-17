@@ -1,0 +1,75 @@
+//req
+
+role creator:
+-> connect
+-> server check role
+-> server check existing user in room
+    can do either:
+        1. check room client count
+        2. check room object (currently articleRooms)
+    if admin is currently editing
+        -> server emit content-locked event with payload with payload:
+                {
+                    status: "reviewed_by_admin"
+                    by: ?user.email (admin's email)
+                }
+        -> emit takeover-complete to takeover client
+        -> kicked client will close connection and redirect
+    else
+        -> add user into room / room object
+        -> emit takeover-complete to takeover client
+
+role admin:
+-> connect
+-> server check role
+-> server check existing user in room
+    if creator/admin is in the current room
+        -> emit has-user event with payload:
+            {
+                user: user.email
+                takeover_token: <some random string>
+            }
+            if client click take over and takeover-token match
+                -> client emit takeover event sending payload:
+                    {
+                        user: user (current user viewing the content)
+                        takeover_token: <token from has-user event>
+                    }
+                -> update current room object with new user info and generate new takeover_token
+                    if creator was in the room
+                        -> emit content-locked event sending payload:
+                            {
+                                status: "reviewed_by_admin"
+                                by: ?user.email (admin's email)
+                            }
+                    if admin was in the room
+                        -> emit content-locked event sending payload:
+                            {
+                                status: "reviewed_by_admin"
+                                by: user.email (admin's email)
+                            }
+                -> emit takeover-complete to takeover client
+                -> kicked client will close connection to the server
+            else 
+                -> close connection
+    else
+        -> add user into room / room object
+        -> emit takeover-complete to takeover client
+
+
+
+
+
+
+
+EVENTS:
+content-locked (from server)
+has-user (from server)
+takeover-complete (from server)
+leave_article (from server)
+takeover (from client)
+*no event to prompt entering room, we'll use on connect
+
+
+
+

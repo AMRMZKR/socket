@@ -1,0 +1,18 @@
+version: '3'
+services:
+  ugc-socket:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: local
+    image: ugc-socket
+    ports:
+      - 4040:4040
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - app-network
+networks:
+  app-network:
+    name: ugc-socket-network
