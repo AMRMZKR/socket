@@ -3,8 +3,8 @@
 ## How to run?
 - do `docker-compose up`
 - cd into client folder, do `npm run install` and `npm run dev`
-- site will be available on localhost:3000
-
+- client will be available on localhost:3000
+- server will be available on localhost:4040
 Note: do `docker-compose up` if you need just the socket server
 
 
